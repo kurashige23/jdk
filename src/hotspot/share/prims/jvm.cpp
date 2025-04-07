@@ -494,6 +494,10 @@ JVM_LEAF(jboolean, JVM_IsContainerized(void))
   return JNI_FALSE;
 JVM_END
 
+JVM_LEAF(jboolean, JVM_IsDisableExplicitGC(void))
+  return DisableExplicitGC ? JNI_TRUE : JNI_FALSE;
+JVM_END
+
 // java.lang.Throwable //////////////////////////////////////////////////////
 
 JVM_ENTRY(void, JVM_FillInStackTrace(JNIEnv *env, jobject receiver))

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1994, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -60,7 +60,7 @@ Java_java_lang_Runtime_maxMemory(JNIEnv *env, jobject this)
 }
 
 JNIEXPORT void JNICALL
-Java_java_lang_Runtime_gc(JNIEnv *env, jobject this)
+Java_java_lang_Runtime_gc0(JNIEnv *env, jobject this)
 {
     JVM_GC();
 }
@@ -69,4 +69,10 @@ JNIEXPORT jint JNICALL
 Java_java_lang_Runtime_availableProcessors(JNIEnv *env, jobject this)
 {
     return JVM_ActiveProcessorCount();
+}
+
+JNIEXPORT jboolean JNICALL
+Java_java_lang_Runtime_isDisableExplicitGC(JNIEnv *env, jclass ignored)
+{
+    return JVM_IsDisableExplicitGC();
 }

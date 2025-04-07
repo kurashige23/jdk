@@ -1542,6 +1542,9 @@ public final class System {
      * Runtime.getRuntime().gc()
      * </pre></blockquote>
      *
+     * @implNote
+     * The invocation of the garbage collection is logged by {@link Runtime#gc()}.
+     *
      * @see     java.lang.Runtime#gc()
      */
     public static void gc() {

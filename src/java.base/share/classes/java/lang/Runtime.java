@@ -678,8 +678,46 @@ public final class Runtime {
      * <p>
      * The method {@link System#gc()} is the conventional and convenient
      * means of invoking this method.
+     *
+     * @implNote
+     * If the {@linkplain System#getLogger(String) system logger} for {@code java.lang.Runtime}
+     * is enabled with logging level {@link System.Logger.Level#DEBUG Level.DEBUG}, the stack trace
+     * of the call to {@code Runtime.gc()} is logged.
      */
-    public native void gc();
+    public void gc() {
+        if(!DISABLE_EXPLICIT_GC){
+            logRuntimeGC();
+        }
+        gc0();
+    }
+
+    static final boolean DISABLE_EXPLICIT_GC = isDisableExplicitGC();
+
+    private static native boolean isDisableExplicitGC();
+
+    private native void gc0();
+
+    /* Locate the logger and log the Runtime.gc().
+     * Catch and ignore any and all exceptions.
+     */
+    private static void logRuntimeGC() {
+        try {
+            System.Logger log = System.getLogger("java.lang.Runtime");
+            if (log.isLoggable(System.Logger.Level.DEBUG)) {
+                Throwable throwable = new Throwable("Runtime.gc()");
+                log.log(System.Logger.Level.DEBUG, "Runtime.gc() called",
+                        throwable);
+            }
+        } catch (Throwable throwable) {
+            try {
+                // Exceptions from the Logger are printed but do not prevent gc
+                System.err.println("Runtime.gc() logging failed: " +
+                        throwable.getMessage());
+            } catch (Throwable throwable2) {
+                // Ignore
+            }
+        }
+    }
 
     /**
      * Runs the finalization methods of any objects pending finalization.

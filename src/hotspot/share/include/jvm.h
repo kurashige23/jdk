@@ -153,6 +153,9 @@ JVM_IsUseContainerSupport(void);
 JNIEXPORT jboolean JNICALL
 JVM_IsContainerized(void);
 
+JNIEXPORT jboolean JNICALL
+JVM_IsDisableExplicitGC(void);
+
 JNIEXPORT void * JNICALL
 JVM_LoadZipLibrary();
 
