@@ -22,8 +22,6 @@
  */
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
@@ -37,18 +35,22 @@ import org.junit.jupiter.params.ParameterizedTest;
  * @test
  * @summary verify logging of call to System.gc or Runtime.gc.
  * @requires vm.flagless
- * @build RuntimeLogTestBase
+ * @build RuntimeLogTestUtils
  * @run junit/othervm RuntimeGCLogTest
  */
 
-public class RuntimeGCLogTest extends RuntimeLogTestBase {
+public class RuntimeGCLogTest {
+
+    private static final String TEST_SRC = System.getProperty("test.src");
+
+    private static Object HOLD_LOGGER;
 
     /**
      * Call System.gc().
      */
     public static void main(String[] args) throws InterruptedException {
         if (System.getProperty("ThrowingHandler") != null) {
-            HOLD_LOGGER = ThrowingHandler.installHandler();
+            HOLD_LOGGER = RuntimeLogTestUtils.ThrowingHandler.installHandler();
         }
         System.gc();
     }
@@ -137,6 +139,6 @@ public class RuntimeGCLogTest extends RuntimeLogTestBase {
     @ParameterizedTest
     @MethodSource("logParamProvider")
     public void checkLogger(List<String> logProps, String expectMessage) {
-        checkLogger(logProps, expectMessage, this.getClass().getName());
+        RuntimeLogTestUtils.checkLogger(logProps, expectMessage, this.getClass().getName(), -1);
     }
 }

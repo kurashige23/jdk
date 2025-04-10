@@ -31,45 +31,20 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class RuntimeLogTestBase {
-    protected static final String TEST_JDK = System.getProperty("test.jdk");
-    protected static final String TEST_SRC = System.getProperty("test.src");
-    protected static final String NEW_LINE = System.lineSeparator();
-    protected static Object HOLD_LOGGER;
+public final class RuntimeLogTestUtils {
+    private static final String TEST_JDK = System.getProperty("test.jdk");
+    private static final String NEW_LINE = System.lineSeparator();
+
+    private RuntimeLogTestUtils() {}
 
     /**
      * Check that the logger output of a launched process contains the expected message.
      * @param logProps The name of the log.properties file to set on the command line
      * @param expectMessage log should contain the message
      * @param className the name of the test class
-          */
-    protected void checkLogger(List<String> logProps, String expectMessage, String className) {
-        ProcessBuilder pb = new ProcessBuilder();
-        pb.redirectErrorStream(true);
-
-        List<String> cmd = pb.command();
-        cmd.add(Path.of(TEST_JDK, "bin", "java").toString());
-        cmd.addAll(logProps);
-        cmd.add(className);
-        
-        try {
-            Process process = pb.start();
-            try (BufferedReader reader = process.inputReader()) {
-                checkLogContent(reader, expectMessage);
-            } 
-        } catch (IOException ex) {
-            fail(ex);
-        }
-    }
-
-    /**
-     * Check that the logger output of a launched process contains the expected message.
-     * @param logProps The name of the log.properties file to set on the command line
-     * @param expectMessage log should contain the message
-     * @param className the name of the test class
-     * @param status the expected exit status of the process
+     * @param status the expected exit status of the process, use -1 to skip status check
      */
-    protected void checkLogger(List<String> logProps, String expectMessage, String className, int status) {
+    public static void checkLogger(List<String> logProps, String expectMessage, String className, int status) {
         ProcessBuilder pb = new ProcessBuilder();
         pb.redirectErrorStream(true);
 
@@ -77,39 +52,39 @@ public class RuntimeLogTestBase {
         cmd.add(Path.of(TEST_JDK, "bin", "java").toString());
         cmd.addAll(logProps);
         cmd.add(className);
-        cmd.add(Integer.toString(status));
+        if (status != -1) {
+            cmd.add(Integer.toString(status));
+        }
 
         try {
             Process process = pb.start();
             try (BufferedReader reader = process.inputReader()) {
-                checkLogContent(reader, expectMessage);
-            } 
-            int result = process.waitFor();
-            assertEquals(status, result, "Exit status");
+                List<String> lines = reader.lines().toList();
+                boolean match = (expectMessage.isEmpty())
+                    ? lines.isEmpty()
+                    : String.join("\n", lines).matches(expectMessage);
+                if (!match) {
+                    System.err.println("Expected pattern (line-break):");
+                    System.err.println(expectMessage.replaceAll("\\n", NEW_LINE));
+                    System.err.println("---- Actual output begin");
+                    lines.forEach(System.err::println);
+                    System.err.println("---- Actual output end");
+                    fail("Unexpected log contents");
+                }
+            }
+            if (status != -1) {
+                int result = process.waitFor();
+                assertEquals(status, result, "Exit status");
+            }
         } catch (IOException | InterruptedException ex) {
             fail(ex);
-        }
-    }
-
-    private void checkLogContent(BufferedReader reader, String expectMessage) {
-        List<String> lines = reader.lines().toList();
-        boolean match = (expectMessage.isEmpty())
-            ? lines.isEmpty()
-            : String.join("\n", lines).matches(expectMessage);
-        if (!match) {
-            System.err.println("Expected pattern (line-break):");
-            System.err.println(expectMessage.replaceAll("\\n", NEW_LINE));
-            System.err.println("---- Actual output begin");
-            lines.forEach(System.err::println);
-            System.err.println("---- Actual output end");
-            fail("Unexpected log contents");
         }
     }
 
     /**
      * A LoggingHandler that throws an Exception.
      */
-    protected static class ThrowingHandler extends StreamHandler {
+    public static class ThrowingHandler extends StreamHandler {
 
         // Install this handler for java.lang.Runtime
         public static Logger installHandler() {

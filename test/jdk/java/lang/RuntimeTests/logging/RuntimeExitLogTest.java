@@ -22,13 +22,8 @@
  */
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import java.util.logging.StreamHandler;
 import java.util.stream.Stream;
 
 
@@ -40,11 +35,15 @@ import org.junit.jupiter.params.ParameterizedTest;
  * @test
  * @summary verify logging of call to System.exit or Runtime.exit.
  * @requires vm.flagless
- * @build RuntimeLogTestBase
+ * @build RuntimeLogTestUtils
  * @run junit/othervm RuntimeExitLogTest
  */
 
-public class RuntimeExitLogTest extends RuntimeLogTestBase {
+public class RuntimeExitLogTest{
+
+    private static final String TEST_SRC = System.getProperty("test.src");
+
+    private static Object HOLD_LOGGER;
 
     /**
      * Call System.exit() with the parameter (or zero if not supplied).
@@ -53,7 +52,7 @@ public class RuntimeExitLogTest extends RuntimeLogTestBase {
     public static void main(String[] args) throws InterruptedException {
         int status = args.length > 0 ? Integer.parseInt(args[0]) : 0;
         if (System.getProperty("ThrowingHandler") != null) {
-            HOLD_LOGGER = ThrowingHandler.installHandler();
+            HOLD_LOGGER = RuntimeLogTestUtils.ThrowingHandler.installHandler();
         }
         System.exit(status);
     }
@@ -138,6 +137,6 @@ public class RuntimeExitLogTest extends RuntimeLogTestBase {
     @ParameterizedTest
     @MethodSource("logParamProvider")
     public void checkLogger(List<String> logProps, int status, String expectMessage) {
-        checkLogger(logProps, expectMessage, this.getClass().getName(), status);
+        RuntimeLogTestUtils.checkLogger(logProps, expectMessage, this.getClass().getName(), status);
     }
 }
