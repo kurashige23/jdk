@@ -720,7 +720,7 @@ address decode_env::decode_instructions(address start, address end, address orig
 
   // Trying to decode instructions doesn't make sense if we
   // couldn't load the disassembler library.
-  if (Disassembler::is_abstract(st)) {
+  if (Disassembler::is_abstract()) {
     return nullptr;
   }
 
@@ -858,7 +858,8 @@ bool Disassembler::load_library(outputStream* st) {
                     : ((WizardMode || PrintMiscellaneous)
                        ? (const char*)ebuf
                        : "library not loadable")),
-                   "PrintAssembly defaults to abstract disassembly.");
+                   "PrintAssembly defaults to abstract disassembly.\n"
+                   "Undisassembled code is printed in the [MachCode] section.");
     }
   }
 #endif
