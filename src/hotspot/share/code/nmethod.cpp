@@ -3481,6 +3481,8 @@ void nmethod::decode2(outputStream* ost) const {
   if (use_compressed_format && ! compressed_with_comments) {
     const_cast<nmethod*>(this)->print_constant_pool(st);
 
+    st->bol();
+    st->print_cr("Loading hsdis library failed, so undisassembled code is printed in the below [MachCode] section *at decode2 1");
     //---<  Open the output (Marker for post-mortem disassembler)  >---
     st->print_cr("[MachCode]");
     const char* header = nullptr;
@@ -3515,6 +3517,8 @@ void nmethod::decode2(outputStream* ost) const {
   if (compressed_with_comments) {
     const_cast<nmethod*>(this)->print_constant_pool(st);
 
+    st->bol();
+    st->print_cr("Loading hsdis library failed, so undisassembled code is printed in the below [MachCode] section *at decode2 2");
     //---<  Open the output (Marker for post-mortem disassembler)  >---
     st->print_cr("[MachCode]");
     while ((p < end) && (p != nullptr)) {
