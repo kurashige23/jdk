@@ -80,9 +80,13 @@ class Disassembler : public AbstractDisassembler {
   // or we will resort to the abstract disassembler. This method informs
   // about which decoding format is used.
   // We can also enforce using the abstract disassembler.
-  static bool is_abstract() {
+  static bool is_abstract(outputStream* st = nullptr) {
     if (!_tried_to_load_library) {
-      load_library();
+      if (st == nullptr) {
+        load_library();
+      } else {
+        load_library(st);
+      }
     }
     return ! _library_usable;
   }

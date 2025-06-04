@@ -3432,7 +3432,7 @@ void nmethod::decode2(outputStream* ost) const {
   const bool compressed_with_comments = use_compressed_format && (AbstractDisassembler::show_comment() ||
                                                                   AbstractDisassembler::show_block_comment());
 #else
-  const bool use_compressed_format    = Disassembler::is_abstract();
+  const bool use_compressed_format    = Disassembler::is_abstract(st);
   const bool compressed_with_comments = use_compressed_format && (AbstractDisassembler::show_comment() ||
                                                                   AbstractDisassembler::show_block_comment());
 #endif

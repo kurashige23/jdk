@@ -720,7 +720,7 @@ address decode_env::decode_instructions(address start, address end, address orig
 
   // Trying to decode instructions doesn't make sense if we
   // couldn't load the disassembler library.
-  if (Disassembler::is_abstract()) {
+  if (Disassembler::is_abstract(st)) {
     return nullptr;
   }
 
@@ -837,8 +837,6 @@ bool Disassembler::load_library(outputStream* st) {
   if (_library != nullptr) {
     _decode_instructions_virtual = CAST_TO_FN_PTR(Disassembler::decode_func_virtual,
                                           os::dll_lookup(_library, decode_instructions_virtual_name));
-  } else {
-    log_warning(os)("Loading hsdis library failed");
   }
   _tried_to_load_library = true;
   _library_usable        = _decode_instructions_virtual != nullptr;
@@ -886,7 +884,7 @@ void Disassembler::decode(CodeBlob* cb, outputStream* st) {
   }
   env.output()->print_cr(" at  [" PTR_FORMAT ", " PTR_FORMAT "]  " JLONG_FORMAT " bytes", p2i(cb->code_begin()), p2i(cb->code_end()), ((jlong)(cb->code_end() - cb->code_begin())));
 
-  if (is_abstract()) {
+  if (is_abstract(st)) {
     AbstractDisassembler::decode_abstract(cb->code_begin(), cb->code_end(), env.output(), Assembler::instr_maxlen());
   } else {
     env.decode_instructions(cb->code_begin(), cb->code_end());
@@ -907,7 +905,7 @@ void Disassembler::decode(nmethod* nm, outputStream* st) {
   nm->print_constant_pool(env.output());
   env.output()->print_cr("--------------------------------------------------------------------------------");
   env.output()->cr();
-  if (is_abstract()) {
+  if (is_abstract(st)) {
     AbstractDisassembler::decode_abstract(nm->code_begin(), nm->code_end(), env.output(), Assembler::instr_maxlen());
   } else {
     env.decode_instructions(nm->code_begin(), nm->code_end());
@@ -929,7 +927,7 @@ void Disassembler::decode(address start, address end, outputStream* st
     return;
   }
 
-  if (is_abstract()) {
+  if (is_abstract(st)) {
     AbstractDisassembler::decode_abstract(start, end, st, Assembler::instr_maxlen());
   } else {
     // This seems to be just a chunk of memory.
